@@ -61,7 +61,10 @@ document.getElementById('copy-btn').addEventListener('click', () => {
 function formatDate(label) {
   const d = new Date(label + 'T00:00:00');
   if (isNaN(d)) return label;
-  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const dow = d.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '');
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dow.charAt(0).toUpperCase()}${dow.slice(1)}. ${day}/${month}`;
 }
 
 function voteMap(participantId) {
