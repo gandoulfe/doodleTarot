@@ -3,13 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Trouvez la date de votre prochaine soirée tarot en un clic.">
+<meta name="theme-color" content="#fbfbfd">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>La Table de Tarot</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="wrap">
   <div class="header">
-    <div class="suits">♠ ♥ ♦ ♣</div>
+    <div class="suits" aria-hidden="true">♠ ♥ ♦ ♣</div>
     <h1 id="ev-title">Chargement...</h1>
     <p id="ev-desc"></p>
   </div>
@@ -22,7 +25,12 @@
 
   <div class="card-panel">
     <h2>Tableau des disponibilités</h2>
-    <p class="hint">Cliquez une case pour faire tourner : — → Oui → Peut-être → Non</p>
+    <p class="hint">Cliquez une case pour changer votre réponse.</p>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot status-yes"></span>Oui</span>
+      <span class="legend-item"><span class="legend-dot status-maybe"></span>Peut-être</span>
+      <span class="legend-item"><span class="legend-dot status-no"></span>Non</span>
+    </div>
     <div id="table-container"><div class="page-loader"><span class="spinner"></span>Chargement de la table...</div></div>
   </div>
 
@@ -44,7 +52,7 @@
 <script>
 const eventId = new URLSearchParams(window.location.search).get('id');
 const STATUS_CYCLE = ['none', 'yes', 'maybe', 'no'];
-const STATUS_SYMBOL = { none: '—', yes: '♥', maybe: '♦', no: '♠' };
+const STATUS_SYMBOL = { none: '—', yes: '✓', maybe: '?', no: '✕' };
 const STATUS_CLASS = { none: '', yes: 'status-yes', maybe: 'status-maybe', no: 'status-no' };
 
 let eventData = null;
@@ -85,7 +93,7 @@ function render() {
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  headRow.innerHTML = '<th>Joueur</th>' + dates.map(d => `<th>${formatDate(d.label)}</th>`).join('');
+  headRow.innerHTML = '<th class="sticky-col">Joueur</th>' + dates.map(d => `<th>${formatDate(d.label)}</th>`).join('');
   thead.appendChild(headRow);
   table.appendChild(thead);
 
@@ -94,6 +102,7 @@ function render() {
     const votes = voteMap(p.id);
     const tr = document.createElement('tr');
     const th = document.createElement('th');
+    th.className = 'sticky-col';
     th.innerHTML = `<div class="name-cell"><span>${escapeHtml(p.name)}</span><button class="btn-remove btn-small" data-remove="${p.id}" title="Retirer ce joueur">×</button></div>`;
     tr.appendChild(th);
     dates.forEach(d => {
@@ -104,7 +113,12 @@ function render() {
       td.dataset.participant = p.id;
       td.dataset.date = d.id;
       td.dataset.status = status;
+      td.setAttribute('role', 'button');
+      td.setAttribute('tabindex', '0');
       td.addEventListener('click', onCellClick);
+      td.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onCellClick(e); }
+      });
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
@@ -113,7 +127,7 @@ function render() {
 
   const tfoot = document.createElement('tfoot');
   const footRow = document.createElement('tr');
-  footRow.innerHTML = '<th>Oui</th>' + dates.map(d => {
+  footRow.innerHTML = '<th class="sticky-col">Oui</th>' + dates.map(d => {
     const count = eventData.votes.filter(v => v.date_id === d.id && v.status === 'yes').length;
     return `<th>${count}</th>`;
   }).join('');

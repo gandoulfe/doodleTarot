@@ -3,13 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Trouvez la date de votre prochaine soirée tarot en un clic.">
+<meta name="theme-color" content="#fbfbfd">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>La Table de Tarot — Créer une soirée</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="wrap">
   <div class="header">
-    <div class="suits">♠ ♥ ♦ ♣</div>
+    <div class="suits" aria-hidden="true">♠ ♥ ♦ ♣</div>
     <h1>La Table de Tarot</h1>
     <p>Organisez votre prochaine soirée entre atouts et petits jeux.</p>
   </div>
@@ -101,11 +104,18 @@ function renderMonth(container, y, m) {
       el.classList.add('past');
     } else {
       if (selectedDates.has(iso)) el.classList.add('selected');
-      el.addEventListener('click', () => {
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-pressed', selectedDates.has(iso) ? 'true' : 'false');
+      const toggle = () => {
         if (selectedDates.has(iso)) selectedDates.delete(iso);
         else selectedDates.add(iso);
         renderCalendars();
         renderChips();
+      };
+      el.addEventListener('click', toggle);
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
       });
     }
     container.appendChild(el);
