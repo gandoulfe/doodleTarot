@@ -525,11 +525,6 @@ button[disabled] {
 }
 button .spinner { margin-right: 6px; }
 
-.vote-cell.loading {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
 .page-loader {
   display: flex;
   align-items: center;

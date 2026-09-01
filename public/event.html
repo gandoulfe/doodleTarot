@@ -167,31 +167,40 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-async function onCellClick(e) {
+const pendingVoteTimers = {};
+const SAVE_DEBOUNCE_MS = 500;
+
+function onCellClick(e) {
   const td = e.currentTarget;
-  if (td.classList.contains('loading')) return;
   const current = td.dataset.status;
   const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(current) + 1) % STATUS_CYCLE.length];
-  const previousText = td.textContent;
-  const previousClass = td.className;
   td.dataset.status = next;
   td.textContent = STATUS_SYMBOL[next];
-  td.className = 'vote-cell loading ' + STATUS_CLASS[next];
+  td.className = 'vote-cell ' + STATUS_CLASS[next];
 
   const participantId = td.dataset.participant;
+  const dateId = td.dataset.date;
+  const key = `${participantId}:${dateId}`;
+
+  if (pendingVoteTimers[key]) clearTimeout(pendingVoteTimers[key]);
+  pendingVoteTimers[key] = setTimeout(() => saveVote(td, participantId, dateId, next), SAVE_DEBOUNCE_MS);
+}
+
+async function saveVote(td, participantId, dateId, status) {
+  delete pendingVoteTimers[`${participantId}:${dateId}`];
   const participant = eventData.participants.find(p => p.id === participantId);
+  if (!participant) return;
   try {
     const res = await fetch(`/api/events/${eventId}/vote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: participant.name, votes: { [td.dataset.date]: next } })
+      body: JSON.stringify({ name: participant.name, votes: { [dateId]: status } })
     });
-    eventData = await res.json();
-    td.classList.remove('loading');
+    const data = await res.json();
+    eventData.votes = data.votes;
+    eventData.participants = data.participants;
   } catch (err) {
-    td.textContent = previousText;
-    td.className = previousClass;
-    td.dataset.status = current;
+    // la prochaine sauvegarde reussie remettra l'etat serveur a jour
   }
 }
 
