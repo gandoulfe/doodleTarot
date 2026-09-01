@@ -23,7 +23,7 @@
   <div class="card-panel">
     <h2>Tableau des disponibilités</h2>
     <p class="hint">Cliquez une case pour faire tourner : — → Oui → Peut-être → Non</p>
-    <div id="table-container"></div>
+    <div id="table-container"><div class="page-loader"><span class="spinner"></span>Chargement de la table...</div></div>
   </div>
 
   <div class="card-panel">
@@ -129,9 +129,17 @@ function render() {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       if (!confirm('Retirer ce joueur de la table ?')) return;
-      const res = await fetch(`/api/events/${eventId}/participants/${btn.dataset.remove}`, { method: 'DELETE' });
-      eventData = await res.json();
-      render();
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await fetch(`/api/events/${eventId}/participants/${btn.dataset.remove}`, { method: 'DELETE' });
+        eventData = await res.json();
+        render();
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
     });
   });
 }
@@ -144,20 +152,30 @@ function escapeHtml(str) {
 
 async function onCellClick(e) {
   const td = e.currentTarget;
+  if (td.classList.contains('loading')) return;
   const current = td.dataset.status;
   const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(current) + 1) % STATUS_CYCLE.length];
+  const previousText = td.textContent;
+  const previousClass = td.className;
   td.dataset.status = next;
   td.textContent = STATUS_SYMBOL[next];
-  td.className = 'vote-cell ' + STATUS_CLASS[next];
+  td.className = 'vote-cell loading ' + STATUS_CLASS[next];
 
   const participantId = td.dataset.participant;
   const participant = eventData.participants.find(p => p.id === participantId);
-  const res = await fetch(`/api/events/${eventId}/vote`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: participant.name, votes: { [td.dataset.date]: next } })
-  });
-  eventData = await res.json();
+  try {
+    const res = await fetch(`/api/events/${eventId}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: participant.name, votes: { [td.dataset.date]: next } })
+    });
+    eventData = await res.json();
+    td.classList.remove('loading');
+  } catch (err) {
+    td.textContent = previousText;
+    td.className = previousClass;
+    td.dataset.status = current;
+  }
 }
 
 document.getElementById('join-btn').addEventListener('click', async () => {
@@ -169,19 +187,31 @@ document.getElementById('join-btn').addEventListener('click', async () => {
   const votes = {};
   eventData.dates.forEach(d => (votes[d.id] = 'none'));
 
-  const res = await fetch(`/api/events/${eventId}/vote`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, votes })
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    errorEl.textContent = data.error || 'Erreur.';
-    return;
+  const btn = document.getElementById('join-btn');
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span>Installation...';
+
+  try {
+    const res = await fetch(`/api/events/${eventId}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, votes })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      errorEl.textContent = data.error || 'Erreur.';
+      return;
+    }
+    eventData = await res.json();
+    document.getElementById('my-name').value = '';
+    render();
+  } catch (err) {
+    errorEl.textContent = 'Impossible de contacter le serveur.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
   }
-  eventData = await res.json();
-  document.getElementById('my-name').value = '';
-  render();
 });
 
 async function load() {

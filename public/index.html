@@ -167,18 +167,30 @@ document.getElementById('create-btn').addEventListener('click', async () => {
   if (!name) { errorEl.textContent = 'Il faut un nom de soirée.'; return; }
   if (dates.length === 0) { errorEl.textContent = 'Sélectionnez au moins une date.'; return; }
 
-  const res = await fetch('/api/events', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, description, dates })
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    errorEl.textContent = data.error || 'Erreur, la donne a mal tourné.';
-    return;
+  const btn = document.getElementById('create-btn');
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span>Distribution en cours...';
+
+  try {
+    const res = await fetch('/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, description, dates })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      errorEl.textContent = data.error || 'Erreur, la donne a mal tourné.';
+      return;
+    }
+    const data = await res.json();
+    window.location.href = `/event.html?id=${data.id}`;
+  } catch (err) {
+    errorEl.textContent = 'Impossible de contacter le serveur.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
   }
-  const data = await res.json();
-  window.location.href = `/event.html?id=${data.id}`;
 });
 </script>
 </body>
