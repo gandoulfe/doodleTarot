@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Table de Tarot — Créer une soirée</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="suits">♠ ♥ ♦ ♣</div>
+    <h1>La Table de Tarot</h1>
+    <p>Organisez votre prochaine soirée entre atouts et petits jeux.</p>
+  </div>
+
+  <div class="card-panel">
+    <h2>Nouvelle soirée</h2>
+    <label for="ev-name">Nom de la soirée</label>
+    <input type="text" id="ev-name" placeholder="Soirée Tarot chez Dédé">
+
+    <label for="ev-desc">Description (optionnel)</label>
+    <textarea id="ev-desc" placeholder="Apportez vos jetons et votre bonne humeur !"></textarea>
+
+    <label>Dates proposées</label>
+    <div id="dates-list"></div>
+    <button type="button" class="btn-gold btn-small" id="add-date">+ Ajouter une date</button>
+
+    <div class="actions">
+      <button type="button" class="btn-wine" id="create-btn">Distribuer les cartes</button>
+    </div>
+    <p class="error" id="error-msg"></p>
+  </div>
+</div>
+
+<script>
+const datesList = document.getElementById('dates-list');
+
+function addDateRow(value = '') {
+  const row = document.createElement('div');
+  row.className = 'date-row';
+  row.innerHTML = `
+    <input type="date" class="date-input" value="${value}">
+    <button type="button" class="btn-remove" title="Retirer">×</button>
+  `;
+  row.querySelector('.btn-remove').addEventListener('click', () => row.remove());
+  datesList.appendChild(row);
+}
+
+document.getElementById('add-date').addEventListener('click', () => addDateRow());
+addDateRow();
+addDateRow();
+
+document.getElementById('create-btn').addEventListener('click', async () => {
+  const errorEl = document.getElementById('error-msg');
+  errorEl.textContent = '';
+  const name = document.getElementById('ev-name').value.trim();
+  const description = document.getElementById('ev-desc').value.trim();
+  const dates = Array.from(document.querySelectorAll('.date-input'))
+    .map(i => i.value)
+    .filter(Boolean);
+
+  if (!name) { errorEl.textContent = 'Il faut un nom de soirée.'; return; }
+  if (dates.length === 0) { errorEl.textContent = 'Ajoutez au moins une date.'; return; }
+
+  const res = await fetch('/api/events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, description, dates })
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    errorEl.textContent = data.error || 'Erreur, la donne a mal tourné.';
+    return;
+  }
+  const data = await res.json();
+  window.location.href = `/event.html?id=${data.id}`;
+});
+</script>
+</body>
+</html>

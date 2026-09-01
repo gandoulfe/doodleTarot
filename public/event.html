@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Table de Tarot</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="suits">♠ ♥ ♦ ♣</div>
+    <h1 id="ev-title">Chargement...</h1>
+    <p id="ev-desc"></p>
+  </div>
+
+  <div class="share-box">
+    <div>Partagez ce lien pour inviter les joueurs :</div>
+    <input type="text" id="share-link" readonly onclick="this.select()">
+    <div><button class="btn-gold btn-small" id="copy-btn">Copier</button></div>
+  </div>
+
+  <div class="card-panel">
+    <h2>Tableau des disponibilités</h2>
+    <p class="hint">Cliquez une case pour faire tourner : — → Oui → Peut-être → Non</p>
+    <div id="table-container"></div>
+  </div>
+
+  <div class="card-panel">
+    <h2>Rejoindre la table</h2>
+    <div class="form-inline">
+      <div>
+        <label for="my-name">Votre nom</label>
+        <input type="text" id="my-name" placeholder="Ex: Fanfan">
+      </div>
+      <div style="flex:0;">
+        <button class="btn-wine" id="join-btn">S'asseoir à la table</button>
+      </div>
+    </div>
+    <p class="error" id="join-error"></p>
+  </div>
+</div>
+
+<script>
+const eventId = new URLSearchParams(window.location.search).get('id');
+const STATUS_CYCLE = ['none', 'yes', 'maybe', 'no'];
+const STATUS_SYMBOL = { none: '—', yes: '♥', maybe: '♦', no: '♠' };
+const STATUS_CLASS = { none: '', yes: 'status-yes', maybe: 'status-maybe', no: 'status-no' };
+
+let eventData = null;
+const pendingVotesByParticipant = {};
+
+document.getElementById('share-link').value = window.location.href;
+document.getElementById('copy-btn').addEventListener('click', () => {
+  navigator.clipboard.writeText(window.location.href);
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = 'Copié !';
+  setTimeout(() => (btn.textContent = 'Copier'), 1500);
+});
+
+function formatDate(label) {
+  const d = new Date(label + 'T00:00:00');
+  if (isNaN(d)) return label;
+  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function voteMap(participantId) {
+  const map = {};
+  eventData.votes
+    .filter(v => v.participant_id === participantId)
+    .forEach(v => (map[v.date_id] = v.status));
+  return map;
+}
+
+function render() {
+  document.getElementById('ev-title').textContent = eventData.event.name;
+  document.getElementById('ev-desc').textContent = eventData.event.description || '';
+
+  const { dates, participants } = eventData;
+  const table = document.createElement('table');
+  table.className = 'doodle';
+
+  const thead = document.createElement('thead');
+  const headRow = document.createElement('tr');
+  headRow.innerHTML = '<th>Joueur</th>' + dates.map(d => `<th>${formatDate(d.label)}</th>`).join('');
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  participants.forEach(p => {
+    const votes = voteMap(p.id);
+    const tr = document.createElement('tr');
+    const th = document.createElement('th');
+    th.innerHTML = `<div class="name-cell"><span>${escapeHtml(p.name)}</span><button class="btn-remove btn-small" data-remove="${p.id}" title="Retirer ce joueur">×</button></div>`;
+    tr.appendChild(th);
+    dates.forEach(d => {
+      const status = votes[d.id] || 'none';
+      const td = document.createElement('td');
+      td.className = 'vote-cell ' + STATUS_CLASS[status];
+      td.textContent = STATUS_SYMBOL[status];
+      td.dataset.participant = p.id;
+      td.dataset.date = d.id;
+      td.dataset.status = status;
+      td.addEventListener('click', onCellClick);
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+
+  const tfoot = document.createElement('tfoot');
+  const footRow = document.createElement('tr');
+  footRow.innerHTML = '<th>Oui</th>' + dates.map(d => {
+    const count = eventData.votes.filter(v => v.date_id === d.id && v.status === 'yes').length;
+    return `<th>${count}</th>`;
+  }).join('');
+  tfoot.appendChild(footRow);
+  table.appendChild(tfoot);
+
+  const container = document.getElementById('table-container');
+  container.innerHTML = '';
+  if (participants.length === 0) {
+    container.innerHTML = '<p class="hint">Personne n\'a encore répondu. Soyez le premier !</p>';
+  } else {
+    container.appendChild(table);
+  }
+
+  container.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!confirm('Retirer ce joueur de la table ?')) return;
+      const res = await fetch(`/api/events/${eventId}/participants/${btn.dataset.remove}`, { method: 'DELETE' });
+      eventData = await res.json();
+      render();
+    });
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function onCellClick(e) {
+  const td = e.currentTarget;
+  const current = td.dataset.status;
+  const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(current) + 1) % STATUS_CYCLE.length];
+  td.dataset.status = next;
+  td.textContent = STATUS_SYMBOL[next];
+  td.className = 'vote-cell ' + STATUS_CLASS[next];
+
+  const participantId = td.dataset.participant;
+  const participant = eventData.participants.find(p => p.id === participantId);
+  const res = await fetch(`/api/events/${eventId}/vote`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: participant.name, votes: { [td.dataset.date]: next } })
+  });
+  eventData = await res.json();
+}
+
+document.getElementById('join-btn').addEventListener('click', async () => {
+  const errorEl = document.getElementById('join-error');
+  errorEl.textContent = '';
+  const name = document.getElementById('my-name').value.trim();
+  if (!name) { errorEl.textContent = 'Entrez un nom.'; return; }
+
+  const votes = {};
+  eventData.dates.forEach(d => (votes[d.id] = 'none'));
+
+  const res = await fetch(`/api/events/${eventId}/vote`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, votes })
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    errorEl.textContent = data.error || 'Erreur.';
+    return;
+  }
+  eventData = await res.json();
+  document.getElementById('my-name').value = '';
+  render();
+});
+
+async function load() {
+  if (!eventId) {
+    document.getElementById('ev-title').textContent = 'Événement introuvable';
+    return;
+  }
+  const res = await fetch(`/api/events/${eventId}`);
+  if (!res.ok) {
+    document.getElementById('ev-title').textContent = 'Événement introuvable';
+    return;
+  }
+  eventData = await res.json();
+  render();
+}
+
+load();
+</script>
+</body>
+</html>

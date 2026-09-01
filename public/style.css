@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap');
+
+:root {
+  --felt: #0b3d24;
+  --felt-dark: #072818;
+  --gold: #d4af37;
+  --gold-light: #f2d879;
+  --wine: #6d1b2c;
+  --parchment: #f4ead1;
+  --ink: #241a0f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--parchment);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(212,175,55,0.08), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 40px),
+    linear-gradient(160deg, var(--felt) 0%, var(--felt-dark) 100%);
+  background-attachment: fixed;
+}
+
+.wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+h1, h2, h3 {
+  font-family: 'Cinzel', serif;
+  color: var(--gold-light);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  letter-spacing: 0.5px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.header .suits {
+  font-size: 1.6rem;
+  color: var(--gold);
+  letter-spacing: 12px;
+  margin-bottom: 4px;
+}
+
+.card-panel {
+  background: linear-gradient(180deg, #fbf3dd, var(--parchment));
+  color: var(--ink);
+  border: 3px solid var(--gold);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.45), inset 0 0 0 3px var(--wine);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.card-panel h2 { color: var(--wine); }
+
+label {
+  display: block;
+  font-weight: 600;
+  margin: 16px 0 6px;
+  font-size: 1.05rem;
+}
+
+input[type=text], input[type=date], textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #b79a5b;
+  border-radius: 8px;
+  background: #fffdf6;
+  color: var(--ink);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+}
+
+textarea { resize: vertical; min-height: 70px; }
+
+.date-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.date-row input { flex: 1; }
+
+button {
+  font-family: 'Cinzel', serif;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+button:active { transform: translateY(1px); }
+
+.btn-gold {
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  color: var(--ink);
+  box-shadow: 0 4px 0 #8a6d1f, 0 6px 12px rgba(0,0,0,0.4);
+}
+.btn-gold:hover { box-shadow: 0 4px 0 #8a6d1f, 0 8px 16px rgba(0,0,0,0.5); }
+
+.btn-wine {
+  background: linear-gradient(180deg, #8a2740, var(--wine));
+  color: var(--parchment);
+  box-shadow: 0 4px 0 #4a1220, 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+.btn-remove {
+  background: transparent;
+  color: var(--wine);
+  font-size: 1.3rem;
+  padding: 0 8px;
+  box-shadow: none;
+}
+
+.actions { margin-top: 20px; text-align: center; }
+
+.share-box {
+  background: rgba(212,175,55,0.12);
+  border: 2px dashed var(--gold);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.share-box input {
+  text-align: center;
+  font-weight: 600;
+}
+
+table.doodle {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fffdf6;
+  color: var(--ink);
+}
+table.doodle th, table.doodle td {
+  border: 1px solid #cbb98a;
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+table.doodle thead th {
+  background: var(--wine);
+  color: var(--parchment);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+}
+table.doodle tbody th {
+  text-align: left;
+  background: #f0e4c4;
+  font-weight: 700;
+}
+table.doodle tfoot th {
+  background: var(--felt);
+  color: var(--gold-light);
+}
+
+.vote-cell {
+  cursor: pointer;
+  font-size: 1.3rem;
+  user-select: none;
+  min-width: 40px;
+}
+.vote-cell.mine { outline: 2px solid var(--wine); outline-offset: -2px; }
+.status-yes { color: #1e7a34; }
+.status-no { color: #a11c1c; }
+.status-maybe { color: #b8860b; }
+
+.name-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-inline {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 18px;
+}
+.form-inline > div { flex: 1; min-width: 160px; }
+
+.hint {
+  font-size: 0.9rem;
+  color: #6b5c3e;
+  margin-top: 4px;
+}
+
+.error {
+  color: var(--wine);
+  font-weight: 600;
+}
+
+a { color: var(--gold-light); }
