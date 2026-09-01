@@ -1,114 +1,108 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap');
-
 :root {
-  --bg-0: #0a0e17;
-  --bg-1: #10182b;
-  --surface: #151d31;
-  --surface-2: #1c2740;
-  --border: #2a3652;
-  --text: #e8ecf5;
-  --text-dim: #8b96b3;
-  --gold: #e0b24d;
-  --gold-soft: rgba(224, 178, 77, 0.14);
-  --wine: #c74a5c;
-  --green: #3ecf8e;
-  --amber: #f0a63a;
-  --radius: 16px;
+  --bg: #fbfbfd;
+  --surface: #ffffff;
+  --surface-2: #f5f5f7;
+  --border: #d2d2d7;
+  --text: #1d1d1f;
+  --text-dim: #86868b;
+  --blue: #0071e3;
+  --blue-dark: #0058b0;
+  --green: #1d8a4a;
+  --red: #d93025;
+  --amber: #b9770e;
+  --radius: 18px;
+  --radius-sm: 12px;
 }
 
 * { box-sizing: border-box; }
 
+html { scroll-behavior: smooth; }
+
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: var(--text);
-  background:
-    radial-gradient(circle at 15% -10%, rgba(224,178,77,0.10), transparent 40%),
-    radial-gradient(circle at 100% 20%, rgba(62,207,142,0.06), transparent 45%),
-    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
-  background-attachment: fixed;
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
 .wrap {
-  max-width: 760px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 40px 20px 90px;
+  padding: 64px 22px 100px;
 }
 
 h1, h2, h3 {
-  font-family: 'Cinzel', serif;
-  color: var(--text);
-  letter-spacing: 0.3px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   margin: 0;
+  color: var(--text);
 }
 
 .header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 48px;
 }
 
 .header .suits {
-  font-size: 1.3rem;
-  color: var(--gold);
-  letter-spacing: 10px;
-  margin-bottom: 8px;
-  opacity: 0.85;
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  letter-spacing: 8px;
+  margin-bottom: 14px;
 }
 
 .header h1 {
-  font-size: 1.9rem;
-  background: linear-gradient(90deg, var(--gold), #f5dca0);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .header p {
   color: var(--text-dim);
-  margin-top: 6px;
-  font-size: 0.95rem;
+  margin-top: 10px;
+  font-size: 1.15rem;
+  font-weight: 400;
 }
 
 .card-panel {
-  background: linear-gradient(180deg, var(--surface), var(--bg-1));
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: 0 20px 40px -20px rgba(0,0,0,0.6);
-  padding: 26px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  padding: 32px;
   margin-bottom: 20px;
 }
 
 .card-panel h2 {
-  font-size: 1.15rem;
-  color: var(--gold);
+  font-size: 1.4rem;
   margin-bottom: 4px;
 }
 
 label {
   display: block;
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  margin: 18px 0 8px;
+  font-weight: 590;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 22px 0 8px;
 }
 
 input[type=text], textarea {
   width: 100%;
-  padding: 12px 14px;
+  padding: 13px 16px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: var(--surface-2);
   color: var(--text);
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
+  font-family: inherit;
+  font-size: 1.02rem;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 input[type=text]:focus, textarea:focus {
-  border-color: var(--gold);
+  border-color: var(--blue);
+  background: var(--surface);
 }
 input[type=text]::placeholder, textarea::placeholder {
   color: var(--text-dim);
@@ -117,85 +111,77 @@ input[type=text]::placeholder, textarea::placeholder {
 textarea { resize: vertical; min-height: 64px; }
 
 button {
-  font-family: 'Inter', sans-serif;
+  font-family: inherit;
   cursor: pointer;
   border: none;
-  border-radius: 10px;
-  padding: 12px 22px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.2px;
-  transition: transform 0.08s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  border-radius: 980px;
+  padding: 13px 26px;
+  font-weight: 590;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  transition: transform 0.08s ease, filter 0.15s ease, background 0.15s ease;
 }
 button:active { transform: scale(0.97); }
 
-.btn-gold {
-  background: linear-gradient(180deg, #f0c674, var(--gold));
-  color: #241a0f;
-  box-shadow: 0 6px 16px -6px rgba(224,178,77,0.5);
-}
-.btn-gold:hover { filter: brightness(1.06); }
-
-.btn-wine {
-  background: linear-gradient(180deg, #d9596b, var(--wine));
+.btn-gold, .btn-wine {
+  background: var(--blue);
   color: #fff;
-  box-shadow: 0 6px 16px -6px rgba(199,74,92,0.5);
 }
-.btn-wine:hover { filter: brightness(1.06); }
+.btn-gold:hover, .btn-wine:hover { background: var(--blue-dark); }
 
 .btn-ghost {
   background: var(--surface-2);
   color: var(--text);
   border: 1px solid var(--border);
-  box-shadow: none;
 }
-.btn-ghost:hover { border-color: var(--gold); }
+.btn-ghost:hover { background: #ececee; }
 
-.btn-small { padding: 6px 12px; font-size: 0.82rem; }
+.btn-small { padding: 8px 16px; font-size: 0.88rem; }
 
 .btn-remove {
   background: transparent;
   color: var(--text-dim);
-  font-size: 1.1rem;
-  padding: 2px 8px;
-  box-shadow: none;
-  border-radius: 6px;
+  font-size: 1.15rem;
+  padding: 4px 10px;
+  border-radius: 8px;
 }
-.btn-remove:hover { color: var(--wine); background: rgba(199,74,92,0.12); }
+.btn-remove:hover { color: var(--red); background: rgba(217,48,37,0.08); }
 
-.actions { margin-top: 22px; text-align: center; }
+.actions { margin-top: 28px; text-align: center; }
 
 /* Calendar */
 .calendar-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 .calendar-nav button {
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text);
-  width: 36px; height: 36px;
-  border-radius: 8px;
+  width: 38px; height: 38px;
+  border-radius: 50%;
   padding: 0;
   font-size: 1.1rem;
-  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.calendar-nav button:hover { border-color: var(--gold); color: var(--gold); }
+.calendar-nav button:hover { background: #ececee; }
 .calendar-nav .month-labels {
   display: flex;
-  gap: 30px;
-  font-family: 'Cinzel', serif;
+  gap: 36px;
   color: var(--text);
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 1rem;
   text-transform: capitalize;
 }
 
 .calendars {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 32px;
 }
 @media (max-width: 560px) {
   .calendars { grid-template-columns: 1fr; }
@@ -204,90 +190,88 @@ button:active { transform: scale(0.97); }
 .month-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 2px;
 }
 .dow {
   text-align: center;
   font-size: 0.72rem;
   color: var(--text-dim);
   text-transform: uppercase;
-  padding-bottom: 4px;
+  font-weight: 600;
+  padding-bottom: 8px;
 }
 .day-cell {
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: 50%;
+  font-size: 0.92rem;
   cursor: pointer;
   color: var(--text);
   transition: background 0.12s ease, transform 0.08s ease;
 }
 .day-cell:hover { background: var(--surface-2); }
 .day-cell.empty { cursor: default; visibility: hidden; }
-.day-cell.past { color: var(--text-dim); opacity: 0.35; cursor: not-allowed; }
+.day-cell.past { color: #c7c7cc; cursor: not-allowed; }
 .day-cell.past:hover { background: none; }
 .day-cell.selected {
-  background: linear-gradient(180deg, #f0c674, var(--gold));
-  color: #241a0f;
-  font-weight: 700;
-  transform: scale(1.03);
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
 }
 .day-cell.today:not(.selected) {
-  box-shadow: inset 0 0 0 1.5px var(--gold);
+  box-shadow: inset 0 0 0 1.5px var(--blue);
 }
 
 .selected-dates {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 20px;
   min-height: 20px;
 }
 .date-chip {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--gold-soft);
-  border: 1px solid rgba(224,178,77,0.35);
-  color: var(--gold);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
   border-radius: 999px;
-  padding: 5px 6px 5px 12px;
-  font-size: 0.85rem;
+  padding: 6px 6px 6px 14px;
+  font-size: 0.88rem;
   font-weight: 500;
 }
 .date-chip button {
   background: none;
   border: none;
-  color: var(--gold);
-  padding: 0 4px;
-  font-size: 0.95rem;
-  box-shadow: none;
-  opacity: 0.7;
+  color: var(--text-dim);
+  padding: 0 6px;
+  font-size: 1rem;
 }
-.date-chip button:hover { opacity: 1; }
+.date-chip button:hover { color: var(--red); }
 
 .share-box {
-  background: var(--gold-soft);
-  border: 1px solid rgba(224,178,77,0.35);
-  border-radius: 12px;
-  padding: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
   margin-bottom: 20px;
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
 }
-.share-box > div:first-child { color: var(--text-dim); font-size: 0.85rem; flex: 1 1 100%; }
+.share-box > div:first-child { color: var(--text-dim); font-size: 0.92rem; flex: 1 1 100%; }
 .share-box input {
   flex: 1;
   min-width: 200px;
-  font-size: 0.9rem;
-  background: var(--surface-2);
+  font-size: 0.92rem;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
   color: var(--text);
 }
 
@@ -296,43 +280,43 @@ table.doodle {
   border-collapse: separate;
   border-spacing: 0;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
 table.doodle th, table.doodle td {
-  padding: 12px 10px;
+  padding: 14px 10px;
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   border-bottom: 1px solid var(--border);
 }
 table.doodle thead th {
   background: var(--surface-2);
-  color: var(--gold);
-  font-family: 'Cinzel', serif;
+  color: var(--text);
   font-weight: 600;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   text-transform: capitalize;
 }
 table.doodle tbody th {
   text-align: left;
-  font-weight: 600;
-  background: rgba(255,255,255,0.02);
+  font-weight: 590;
+  background: var(--surface);
 }
-table.doodle tbody tr:hover td, table.doodle tbody tr:hover th { background: rgba(255,255,255,0.03); }
+table.doodle tbody tr:hover td, table.doodle tbody tr:hover th { background: #fafafc; }
 table.doodle tfoot th {
-  background: var(--bg-1);
-  color: var(--gold);
+  background: var(--surface-2);
+  color: var(--text);
   border-bottom: none;
+  font-weight: 600;
 }
 
 .vote-cell {
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   user-select: none;
   min-width: 44px;
 }
 .status-yes { color: var(--green); }
-.status-no { color: var(--wine); }
+.status-no { color: var(--red); }
 .status-maybe { color: var(--amber); }
 
 .name-cell {
@@ -352,18 +336,18 @@ table.doodle tfoot th {
 .form-inline > div { flex: 1; min-width: 160px; }
 
 .hint {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-dim);
   margin: 6px 0 0;
 }
 
 .error {
-  color: var(--wine);
-  font-weight: 600;
-  font-size: 0.9rem;
+  color: var(--red);
+  font-weight: 590;
+  font-size: 0.92rem;
 }
 
-a { color: var(--gold); }
+a { color: var(--blue); }
 
 .spinner {
   display: inline-block;
@@ -378,13 +362,13 @@ a { color: var(--gold); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 button[disabled] {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 button .spinner { margin-right: 6px; }
 
 .vote-cell.loading {
-  opacity: 0.45;
+  opacity: 0.4;
   pointer-events: none;
 }
 
@@ -393,7 +377,7 @@ button .spinner { margin-right: 6px; }
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 40px 0;
+  padding: 48px 0;
   color: var(--text-dim);
   font-size: 0.95rem;
 }
@@ -401,5 +385,7 @@ button .spinner { margin-right: 6px; }
   width: 1.4em;
   height: 1.4em;
   border-width: 3px;
-  color: var(--gold);
+  border-color: rgba(0,0,0,0.15);
+  border-top-color: var(--blue);
+  color: var(--blue);
 }
