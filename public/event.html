@@ -14,7 +14,6 @@
   <div class="header">
     <div class="suits" aria-hidden="true">♠ ♥ ♦ ♣</div>
     <h1 id="ev-title">Chargement...</h1>
-    <p id="ev-desc"></p>
   </div>
 
   <div class="share-box">
@@ -85,7 +84,6 @@ function voteMap(participantId) {
 
 function render() {
   document.getElementById('ev-title').textContent = eventData.event.name;
-  document.getElementById('ev-desc').textContent = eventData.event.description || '';
 
   const { dates, participants } = eventData;
   const table = document.createElement('table');

@@ -45,13 +45,13 @@ app.use(async (req, res, next) => {
 });
 
 app.post('/api/events', async (req, res) => {
-  const { name, description, dates } = req.body;
+  const { name, dates } = req.body;
   if (!name || !Array.isArray(dates) || dates.length === 0) {
     return res.status(400).json({ error: 'name et dates requis' });
   }
   const id = nanoid(10);
   const statements = [
-    { sql: 'INSERT INTO events (id, name, description) VALUES (?, ?, ?)', args: [id, name, description || ''] },
+    { sql: 'INSERT INTO events (id, name) VALUES (?, ?)', args: [id, name] },
     ...dates.map((label, i) => ({
       sql: 'INSERT INTO event_dates (id, event_id, label, sort_order) VALUES (?, ?, ?, ?)',
       args: [nanoid(8), id, label, i]

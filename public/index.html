@@ -21,9 +21,6 @@
     <h2>Nouvelle soirée</h2>
     <label for="ev-name">Nom de la soirée</label>
     <input type="text" id="ev-name" placeholder="Soirée Tarot chez Dédé">
-
-    <label for="ev-desc">Description (optionnel)</label>
-    <textarea id="ev-desc" placeholder="Apportez vos jetons et votre bonne humeur !"></textarea>
   </div>
 
   <div class="card-panel">
@@ -263,7 +260,6 @@ document.getElementById('create-btn').addEventListener('click', async () => {
   const errorEl = document.getElementById('error-msg');
   errorEl.textContent = '';
   const name = document.getElementById('ev-name').value.trim();
-  const description = document.getElementById('ev-desc').value.trim();
   const dates = Array.from(selectedDates).sort();
 
   if (!name) { errorEl.textContent = 'Il faut un nom de soirée.'; return; }
@@ -278,7 +274,7 @@ document.getElementById('create-btn').addEventListener('click', async () => {
     const res = await fetch('/api/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, description, dates })
+      body: JSON.stringify({ name, dates })
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
