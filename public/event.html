@@ -242,6 +242,13 @@ async function load() {
     return;
   }
   eventData = await res.json();
+  try {
+    const ids = JSON.parse(localStorage.getItem('tarotEvents')) || [];
+    if (!ids.includes(eventId)) {
+      ids.unshift(eventId);
+      localStorage.setItem('tarotEvents', JSON.stringify(ids));
+    }
+  } catch {}
   render();
 }
 

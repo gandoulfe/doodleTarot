@@ -51,9 +51,130 @@
     <button type="button" class="btn-wine" id="create-btn">Distribuer les cartes</button>
   </div>
   <p class="error" id="error-msg"></p>
+
+  <div class="card-panel" id="my-events-panel" style="display:none;">
+    <h2>Vos soirées</h2>
+    <div id="my-events-list"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal">
+    <h3>Supprimer cette soirée ?</h3>
+    <p class="hint" id="confirm-modal-text">Cette action est définitive, les réponses des joueurs seront perdues.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="confirm-cancel">Annuler</button>
+      <button type="button" class="btn-danger" id="confirm-ok">Supprimer</button>
+    </div>
+  </div>
 </div>
 
 <script>
+const STORAGE_KEY = 'tarotEvents';
+
+function getSavedEventIds() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveEventId(id) {
+  const ids = getSavedEventIds();
+  if (!ids.includes(id)) {
+    ids.unshift(id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+  }
+}
+
+function removeEventId(id) {
+  const ids = getSavedEventIds().filter(x => x !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+}
+
+function askConfirm(text) {
+  return new Promise(resolve => {
+    const modal = document.getElementById('confirm-modal');
+    document.getElementById('confirm-modal-text').textContent = text;
+    modal.classList.add('open');
+    const cleanup = (result) => {
+      modal.classList.remove('open');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      modal.removeEventListener('click', onOverlay);
+      resolve(result);
+    };
+    const okBtn = document.getElementById('confirm-ok');
+    const cancelBtn = document.getElementById('confirm-cancel');
+    const onOk = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+    const onOverlay = (e) => { if (e.target === modal) cleanup(false); };
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    modal.addEventListener('click', onOverlay);
+  });
+}
+
+async function loadMyEvents() {
+  const ids = getSavedEventIds();
+  const panel = document.getElementById('my-events-panel');
+  const list = document.getElementById('my-events-list');
+  if (ids.length === 0) { panel.style.display = 'none'; return; }
+
+  list.innerHTML = '<div class="page-loader"><span class="spinner"></span>Chargement...</div>';
+  panel.style.display = '';
+
+  const results = await Promise.all(ids.map(async id => {
+    try {
+      const res = await fetch(`/api/events/${id}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }));
+
+  list.innerHTML = '';
+  let anyValid = false;
+  results.forEach((data, i) => {
+    const id = ids[i];
+    if (!data) { removeEventId(id); return; }
+    anyValid = true;
+    const row = document.createElement('div');
+    row.className = 'event-row';
+    const dateCount = data.dates.length;
+    row.innerHTML = `
+      <a class="event-row-link" href="/event.html?id=${id}">
+        <span class="event-row-name">${data.event.name}</span>
+        <span class="event-row-meta">${dateCount} date${dateCount > 1 ? 's' : ''} proposée${dateCount > 1 ? 's' : ''}</span>
+      </a>
+      <button type="button" class="btn-remove" data-delete="${id}" title="Supprimer">×</button>
+    `;
+    list.appendChild(row);
+  });
+
+  if (!anyValid) { panel.style.display = 'none'; return; }
+
+  list.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.delete;
+      const ok = await askConfirm('Cette soirée et toutes les réponses associées seront supprimées définitivement.');
+      if (!ok) return;
+      btn.disabled = true;
+      try {
+        await fetch(`/api/events/${id}`, { method: 'DELETE' });
+        removeEventId(id);
+        loadMyEvents();
+      } catch {
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+loadMyEvents();
+
 const DOW = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 const selectedDates = new Set();
 
@@ -194,6 +315,7 @@ document.getElementById('create-btn').addEventListener('click', async () => {
       return;
     }
     const data = await res.json();
+    saveEventId(data.id);
     window.location.href = `/event.html?id=${data.id}`;
   } catch (err) {
     errorEl.textContent = 'Impossible de contacter le serveur.';

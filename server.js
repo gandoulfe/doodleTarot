@@ -133,6 +133,17 @@ app.delete('/api/events/:id/participants/:participantId', async (req, res) => {
   res.json(await getEventData(id));
 });
 
+app.delete('/api/events/:id', async (req, res) => {
+  const { id } = req.params;
+  await db.batch([
+    { sql: 'DELETE FROM votes WHERE participant_id IN (SELECT id FROM participants WHERE event_id = ?)', args: [id] },
+    { sql: 'DELETE FROM participants WHERE event_id = ?', args: [id] },
+    { sql: 'DELETE FROM event_dates WHERE event_id = ?', args: [id] },
+    { sql: 'DELETE FROM events WHERE id = ?', args: [id] }
+  ]);
+  res.json({ ok: true });
+});
+
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => console.log(`Table de tarot ouverte sur http://localhost:${PORT}`));
