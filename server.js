@@ -61,6 +61,18 @@ app.post('/api/events', async (req, res) => {
   res.json({ id });
 });
 
+app.get('/api/events', async (req, res) => {
+  const eventsRes = await db.execute(
+    `SELECT e.id, e.name, e.created_at, COUNT(DISTINCT d.id) as date_count, COUNT(DISTINCT p.id) as participant_count
+     FROM events e
+     LEFT JOIN event_dates d ON d.event_id = e.id
+     LEFT JOIN participants p ON p.event_id = e.id
+     GROUP BY e.id
+     ORDER BY e.created_at DESC`
+  );
+  res.json(eventsRes.rows);
+});
+
 async function getEventData(id) {
   const eventRes = await db.execute({ sql: 'SELECT * FROM events WHERE id = ?', args: [id] });
   const event = eventRes.rows[0];

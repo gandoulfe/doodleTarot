@@ -53,7 +53,7 @@
   <p class="error" id="error-msg"></p>
 
   <div class="card-panel" id="my-events-panel" style="display:none;">
-    <h2>Vos soirées</h2>
+    <h2>Toutes les soirées</h2>
     <div id="my-events-list"></div>
   </div>
 </div>
@@ -70,29 +70,6 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'tarotEvents';
-
-function getSavedEventIds() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function saveEventId(id) {
-  const ids = getSavedEventIds();
-  if (!ids.includes(id)) {
-    ids.unshift(id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-  }
-}
-
-function removeEventId(id) {
-  const ids = getSavedEventIds().filter(x => x !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-}
-
 function askConfirm(text) {
   return new Promise(resolve => {
     const modal = document.getElementById('confirm-modal');
@@ -117,44 +94,33 @@ function askConfirm(text) {
 }
 
 async function loadMyEvents() {
-  const ids = getSavedEventIds();
   const panel = document.getElementById('my-events-panel');
   const list = document.getElementById('my-events-list');
-  if (ids.length === 0) { panel.style.display = 'none'; return; }
 
   list.innerHTML = '<div class="page-loader"><span class="spinner"></span>Chargement...</div>';
   panel.style.display = '';
 
-  const results = await Promise.all(ids.map(async id => {
-    try {
-      const res = await fetch(`/api/events/${id}`);
-      if (!res.ok) return null;
-      return await res.json();
-    } catch {
-      return null;
-    }
-  }));
+  let events = [];
+  try {
+    const res = await fetch('/api/events');
+    if (res.ok) events = await res.json();
+  } catch {}
+
+  if (events.length === 0) { panel.style.display = 'none'; return; }
 
   list.innerHTML = '';
-  let anyValid = false;
-  results.forEach((data, i) => {
-    const id = ids[i];
-    if (!data) { removeEventId(id); return; }
-    anyValid = true;
+  events.forEach(ev => {
     const row = document.createElement('div');
     row.className = 'event-row';
-    const dateCount = data.dates.length;
     row.innerHTML = `
-      <a class="event-row-link" href="/event.html?id=${id}">
-        <span class="event-row-name">${data.event.name}</span>
-        <span class="event-row-meta">${dateCount} date${dateCount > 1 ? 's' : ''} proposée${dateCount > 1 ? 's' : ''}</span>
+      <a class="event-row-link" href="/event.html?id=${ev.id}">
+        <span class="event-row-name">${escapeHtml(ev.name)}</span>
+        <span class="event-row-meta">${ev.date_count} date${ev.date_count > 1 ? 's' : ''} · ${ev.participant_count} joueur${ev.participant_count > 1 ? 's' : ''}</span>
       </a>
-      <button type="button" class="btn-remove" data-delete="${id}" title="Supprimer">×</button>
+      <button type="button" class="btn-remove" data-delete="${ev.id}" title="Supprimer">×</button>
     `;
     list.appendChild(row);
   });
-
-  if (!anyValid) { panel.style.display = 'none'; return; }
 
   list.querySelectorAll('[data-delete]').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -164,13 +130,18 @@ async function loadMyEvents() {
       btn.disabled = true;
       try {
         await fetch(`/api/events/${id}`, { method: 'DELETE' });
-        removeEventId(id);
         loadMyEvents();
       } catch {
         btn.disabled = false;
       }
     });
   });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 loadMyEvents();
@@ -315,7 +286,6 @@ document.getElementById('create-btn').addEventListener('click', async () => {
       return;
     }
     const data = await res.json();
-    saveEventId(data.id);
     window.location.href = `/event.html?id=${data.id}`;
   } catch (err) {
     errorEl.textContent = 'Impossible de contacter le serveur.';
