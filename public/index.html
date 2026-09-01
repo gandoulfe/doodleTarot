@@ -21,47 +21,151 @@
 
     <label for="ev-desc">Description (optionnel)</label>
     <textarea id="ev-desc" placeholder="Apportez vos jetons et votre bonne humeur !"></textarea>
-
-    <label>Dates proposées</label>
-    <div id="dates-list"></div>
-    <button type="button" class="btn-gold btn-small" id="add-date">+ Ajouter une date</button>
-
-    <div class="actions">
-      <button type="button" class="btn-wine" id="create-btn">Distribuer les cartes</button>
-    </div>
-    <p class="error" id="error-msg"></p>
   </div>
+
+  <div class="card-panel">
+    <h2>Dates proposées</h2>
+    <p class="hint">Cliquez sur autant de dates que vous voulez.</p>
+
+    <div class="calendar-nav">
+      <button type="button" id="cal-prev">‹</button>
+      <div class="month-labels">
+        <span id="month-label-0"></span>
+        <span id="month-label-1"></span>
+      </div>
+      <button type="button" id="cal-next">›</button>
+    </div>
+
+    <div class="calendars">
+      <div id="cal-0" class="month-grid"></div>
+      <div id="cal-1" class="month-grid"></div>
+    </div>
+
+    <div class="selected-dates" id="selected-dates"></div>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn-wine" id="create-btn">Distribuer les cartes</button>
+  </div>
+  <p class="error" id="error-msg"></p>
 </div>
 
 <script>
-const datesList = document.getElementById('dates-list');
+const DOW = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+const selectedDates = new Set();
 
-function addDateRow(value = '') {
-  const row = document.createElement('div');
-  row.className = 'date-row';
-  row.innerHTML = `
-    <input type="date" class="date-input" value="${value}">
-    <button type="button" class="btn-remove" title="Retirer">×</button>
-  `;
-  row.querySelector('.btn-remove').addEventListener('click', () => row.remove());
-  datesList.appendChild(row);
+let viewYear, viewMonth;
+{
+  const now = new Date();
+  viewYear = now.getFullYear();
+  viewMonth = now.getMonth();
 }
 
-document.getElementById('add-date').addEventListener('click', () => addDateRow());
-addDateRow();
-addDateRow();
+function toISO(y, m, d) {
+  return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
+function isPast(y, m, d) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(y, m, d) < today;
+}
+
+function renderMonth(container, y, m) {
+  container.innerHTML = '';
+  DOW.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'dow';
+    el.textContent = d;
+    container.appendChild(el);
+  });
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const offset = (firstDay + 6) % 7; // lundi = 0
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const todayISO = toISO(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+
+  for (let i = 0; i < offset; i++) {
+    const el = document.createElement('div');
+    el.className = 'day-cell empty';
+    container.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const iso = toISO(y, m, d);
+    const el = document.createElement('div');
+    el.className = 'day-cell';
+    el.textContent = d;
+    if (iso === todayISO) el.classList.add('today');
+    if (isPast(y, m, d) && iso !== todayISO) {
+      el.classList.add('past');
+    } else {
+      if (selectedDates.has(iso)) el.classList.add('selected');
+      el.addEventListener('click', () => {
+        if (selectedDates.has(iso)) selectedDates.delete(iso);
+        else selectedDates.add(iso);
+        renderCalendars();
+        renderChips();
+      });
+    }
+    container.appendChild(el);
+  }
+}
+
+function monthLabel(y, m) {
+  return new Date(y, m, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+}
+
+function renderCalendars() {
+  const next = viewMonth === 11 ? { y: viewYear + 1, m: 0 } : { y: viewYear, m: viewMonth + 1 };
+  document.getElementById('month-label-0').textContent = monthLabel(viewYear, viewMonth);
+  document.getElementById('month-label-1').textContent = monthLabel(next.y, next.m);
+  renderMonth(document.getElementById('cal-0'), viewYear, viewMonth);
+  renderMonth(document.getElementById('cal-1'), next.y, next.m);
+}
+
+function renderChips() {
+  const container = document.getElementById('selected-dates');
+  container.innerHTML = '';
+  const sorted = Array.from(selectedDates).sort();
+  sorted.forEach(iso => {
+    const chip = document.createElement('div');
+    chip.className = 'date-chip';
+    const label = new Date(iso + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    chip.innerHTML = `<span>${label}</span>`;
+    const btn = document.createElement('button');
+    btn.textContent = '×';
+    btn.addEventListener('click', () => {
+      selectedDates.delete(iso);
+      renderCalendars();
+      renderChips();
+    });
+    chip.appendChild(btn);
+    container.appendChild(chip);
+  });
+}
+
+document.getElementById('cal-prev').addEventListener('click', () => {
+  if (viewMonth === 0) { viewMonth = 11; viewYear--; } else { viewMonth--; }
+  renderCalendars();
+});
+document.getElementById('cal-next').addEventListener('click', () => {
+  if (viewMonth === 11) { viewMonth = 0; viewYear++; } else { viewMonth++; }
+  renderCalendars();
+});
+
+renderCalendars();
+renderChips();
 
 document.getElementById('create-btn').addEventListener('click', async () => {
   const errorEl = document.getElementById('error-msg');
   errorEl.textContent = '';
   const name = document.getElementById('ev-name').value.trim();
   const description = document.getElementById('ev-desc').value.trim();
-  const dates = Array.from(document.querySelectorAll('.date-input'))
-    .map(i => i.value)
-    .filter(Boolean);
+  const dates = Array.from(selectedDates).sort();
 
   if (!name) { errorEl.textContent = 'Il faut un nom de soirée.'; return; }
-  if (dates.length === 0) { errorEl.textContent = 'Ajoutez au moins une date.'; return; }
+  if (dates.length === 0) { errorEl.textContent = 'Sélectionnez au moins une date.'; return; }
 
   const res = await fetch('/api/events', {
     method: 'POST',
