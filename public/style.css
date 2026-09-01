@@ -34,6 +34,22 @@ body {
   padding: 64px 22px 100px;
 }
 
+@media (max-width: 680px) {
+  .wrap { padding: 44px 16px 72px; }
+}
+@media (max-width: 420px) {
+  .wrap { padding: 32px 12px 56px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 h1, h2, h3 {
   font-weight: 600;
   letter-spacing: -0.015em;
@@ -44,6 +60,11 @@ h1, h2, h3 {
 .header {
   text-align: center;
   margin-bottom: 48px;
+  animation: fadeInUp 0.6s ease both;
+}
+
+@media (max-width: 680px) {
+  .header { margin-bottom: 32px; }
 }
 
 .header .suits {
@@ -54,7 +75,7 @@ h1, h2, h3 {
 }
 
 .header h1 {
-  font-size: clamp(2.2rem, 5vw, 3rem);
+  font-size: clamp(1.8rem, 6vw, 3rem);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -62,8 +83,13 @@ h1, h2, h3 {
 .header p {
   color: var(--text-dim);
   margin-top: 10px;
-  font-size: 1.15rem;
+  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
   font-weight: 400;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .card-panel {
@@ -73,6 +99,21 @@ h1, h2, h3 {
   box-shadow: 0 1px 2px rgba(0,0,0,0.03);
   padding: 32px;
   margin-bottom: 20px;
+  animation: fadeInUp 0.6s ease both;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-panel:nth-of-type(1) { animation-delay: 0.05s; }
+.card-panel:nth-of-type(2) { animation-delay: 0.12s; }
+.card-panel:nth-of-type(3) { animation-delay: 0.19s; }
+.card-panel:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+@media (max-width: 680px) {
+  .card-panel { padding: 22px; border-radius: 16px; }
+}
+@media (max-width: 420px) {
+  .card-panel { padding: 18px; border-radius: 14px; }
 }
 
 .card-panel h2 {
@@ -119,15 +160,24 @@ button {
   font-weight: 590;
   font-size: 1rem;
   letter-spacing: -0.01em;
-  transition: transform 0.08s ease, filter 0.15s ease, background 0.15s ease;
+  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.15s ease,
+    background 0.15s ease, box-shadow 0.2s ease;
 }
-button:active { transform: scale(0.97); }
+button:active { transform: scale(0.96); }
 
 .btn-gold, .btn-wine {
   background: var(--blue);
   color: #fff;
 }
-.btn-gold:hover, .btn-wine:hover { background: var(--blue-dark); }
+.btn-gold:hover, .btn-wine:hover {
+  background: var(--blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,113,227,0.28);
+}
+
+@media (max-width: 480px) {
+  .actions button { width: 100%; }
+}
 
 .btn-ghost {
   background: var(--surface-2);
@@ -167,8 +217,10 @@ button:active { transform: scale(0.97); }
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
-.calendar-nav button:hover { background: #ececee; }
+.calendar-nav button:hover { background: #ececee; transform: scale(1.06); }
+.calendar-nav button:active { transform: scale(0.92); }
 .calendar-nav .month-labels {
   display: flex;
   gap: 36px;
@@ -177,6 +229,10 @@ button:active { transform: scale(0.97); }
   font-size: 1rem;
   text-transform: capitalize;
 }
+@media (max-width: 560px) {
+  .calendar-nav .month-labels { gap: 16px; font-size: 0.85rem; }
+  .calendar-nav button { width: 32px; height: 32px; font-size: 1rem; }
+}
 
 .calendars {
   display: grid;
@@ -184,13 +240,18 @@ button:active { transform: scale(0.97); }
   gap: 32px;
 }
 @media (max-width: 560px) {
-  .calendars { grid-template-columns: 1fr; }
+  .calendars { grid-template-columns: 1fr; gap: 20px; }
 }
 
 .month-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
+  animation: fadeIn 0.25s ease both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .dow {
   text-align: center;
@@ -209,9 +270,13 @@ button:active { transform: scale(0.97); }
   font-size: 0.92rem;
   cursor: pointer;
   color: var(--text);
-  transition: background 0.12s ease, transform 0.08s ease;
+  transition: background 0.15s ease, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s ease, box-shadow 0.15s ease;
 }
-.day-cell:hover { background: var(--surface-2); }
+@media (max-width: 420px) {
+  .day-cell { font-size: 0.82rem; }
+}
+.day-cell:hover:not(.past):not(.selected) { background: var(--surface-2); transform: scale(1.08); }
+.day-cell:active:not(.past) { transform: scale(0.92); }
 .day-cell.empty { cursor: default; visibility: hidden; }
 .day-cell.past { color: #c7c7cc; cursor: not-allowed; }
 .day-cell.past:hover { background: none; }
@@ -219,6 +284,11 @@ button:active { transform: scale(0.97); }
   background: var(--blue);
   color: #fff;
   font-weight: 600;
+  animation: pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes pop {
+  0% { transform: scale(0.7); }
+  100% { transform: scale(1); }
 }
 .day-cell.today:not(.selected) {
   box-shadow: inset 0 0 0 1.5px var(--blue);
@@ -242,6 +312,11 @@ button:active { transform: scale(0.97); }
   padding: 6px 6px 6px 14px;
   font-size: 0.88rem;
   font-weight: 500;
+  animation: chipIn 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes chipIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
 }
 .date-chip button {
   background: none;
@@ -249,8 +324,9 @@ button:active { transform: scale(0.97); }
   color: var(--text-dim);
   padding: 0 6px;
   font-size: 1rem;
+  transition: color 0.15s ease, transform 0.15s ease;
 }
-.date-chip button:hover { color: var(--red); }
+.date-chip button:hover { color: var(--red); transform: scale(1.15); }
 
 .share-box {
   background: var(--surface-2);
@@ -262,6 +338,8 @@ button:active { transform: scale(0.97); }
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  animation: fadeInUp 0.6s ease both;
+  animation-delay: 0.05s;
 }
 .share-box > div:first-child { color: var(--text-dim); font-size: 0.92rem; flex: 1 1 100%; }
 .share-box input {
@@ -273,10 +351,25 @@ button:active { transform: scale(0.97); }
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   color: var(--text);
+  transition: border-color 0.15s ease;
+}
+.share-box input:focus { border-color: var(--blue); outline: none; }
+
+@media (max-width: 480px) {
+  .share-box { padding: 16px; flex-direction: column; align-items: stretch; }
+  .share-box button { width: 100%; }
+}
+
+#table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -4px;
+  padding: 0 4px;
 }
 
 table.doodle {
   width: 100%;
+  min-width: 480px;
   border-collapse: separate;
   border-spacing: 0;
   overflow: hidden;
@@ -288,6 +381,10 @@ table.doodle th, table.doodle td {
   text-align: center;
   font-size: 0.92rem;
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  table.doodle th, table.doodle td { padding: 10px 8px; font-size: 0.85rem; }
 }
 table.doodle thead th {
   background: var(--surface-2);
@@ -314,7 +411,10 @@ table.doodle tfoot th {
   font-size: 1.15rem;
   user-select: none;
   min-width: 44px;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
+.vote-cell:hover { background: var(--surface-2); }
+.vote-cell:active { transform: scale(0.9); }
 .status-yes { color: var(--green); }
 .status-no { color: var(--red); }
 .status-maybe { color: var(--amber); }
@@ -334,6 +434,11 @@ table.doodle tfoot th {
   margin-top: 8px;
 }
 .form-inline > div { flex: 1; min-width: 160px; }
+
+@media (max-width: 480px) {
+  .form-inline { flex-direction: column; align-items: stretch; }
+  .form-inline button { width: 100%; }
+}
 
 .hint {
   font-size: 0.9rem;
