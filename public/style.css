@@ -133,6 +133,40 @@ h1, h2, h3 {
   margin-bottom: 4px;
 }
 
+.top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 680px) {
+  .top-row { grid-template-columns: 1fr; }
+}
+
+.card-champion {
+  background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
+  border: none;
+  color: #fff;
+}
+.card-champion h2,
+.card-champion label { color: #fff; }
+.card-champion input[type=text] {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.35);
+  color: #fff;
+}
+.card-champion input[type=text]::placeholder { color: rgba(255,255,255,0.7); }
+.card-champion input[type=text]:focus {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+}
+.card-champion .btn-ghost {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.4);
+  color: #fff;
+}
+.card-champion .btn-ghost:hover { background: rgba(255,255,255,0.25); }
+
 label {
   display: block;
   font-weight: 590;

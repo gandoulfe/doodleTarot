@@ -17,24 +17,22 @@
     <p>Organisez votre prochaine soirée entre atouts et petits jeux.</p>
   </div>
 
-  <div class="card-panel">
-    <h2>Champion actuel</h2>
-    <label for="champion-name">Vainqueur de la dernière soirée</label>
-    <div class="form-inline">
-      <div>
-        <input type="text" id="champion-name" placeholder="Nom du champion">
+  <div class="top-row">
+    <div class="card-panel card-champion">
+      <h2>🏆 Champion actuel</h2>
+      <label for="champion-name">Vainqueur de la dernière soirée</label>
+      <input type="text" id="champion-name" placeholder="Nom du champion">
+      <div class="actions" style="margin:14px 0 0;">
+        <button class="btn-ghost" id="champion-save-btn">Enregistrer</button>
       </div>
-      <div style="flex:0;">
-        <button class="btn-wine" id="champion-save-btn">Enregistrer</button>
-      </div>
+      <p class="error" id="champion-error"></p>
     </div>
-    <p class="error" id="champion-error"></p>
-  </div>
 
-  <div class="card-panel">
-    <h2>Nouvelle soirée</h2>
-    <label for="ev-name">Nom de la soirée</label>
-    <input type="text" id="ev-name" placeholder="Soirée Tarot chez Dédé">
+    <div class="card-panel">
+      <h2>Nouvelle soirée</h2>
+      <label for="ev-name">Nom de la soirée</label>
+      <input type="text" id="ev-name" placeholder="Soirée Tarot chez Dédé">
+    </div>
   </div>
 
   <div class="card-panel">
