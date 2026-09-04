@@ -221,9 +221,10 @@ button:active { transform: scale(0.96); }
 
 /* Calendar */
 .calendar-nav {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 32px;
   margin-bottom: 18px;
 }
 .calendar-nav button {
@@ -244,15 +245,18 @@ button:active { transform: scale(0.96); }
 .calendar-nav button:hover { background: var(--surface-2); border-color: var(--blue); transform: scale(1.06); }
 .calendar-nav button:active { transform: scale(0.92); }
 .calendar-nav .month-labels {
-  display: flex;
-  gap: 36px;
+  display: contents;
+}
+.calendar-nav .month-labels span {
+  text-align: center;
   color: var(--text);
   font-weight: 600;
   font-size: 1rem;
   text-transform: capitalize;
 }
 @media (max-width: 560px) {
-  .calendar-nav .month-labels { gap: 16px; font-size: 0.85rem; }
+  .calendar-nav { gap: 20px; }
+  .calendar-nav .month-labels span { font-size: 0.85rem; }
   .calendar-nav button { width: 32px; height: 32px; font-size: 1rem; }
 }
 
