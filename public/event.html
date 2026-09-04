@@ -7,8 +7,6 @@
 <meta name="theme-color" content="#fbfbfd">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>La Table de Tarot</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css">
-<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,8 +18,8 @@
 
   <div class="share-box">
     <div>Partagez ce lien pour inviter les joueurs :</div>
-    <sl-input id="share-link" readonly onclick="this.select()"></sl-input>
-    <div><sl-button variant="primary" size="small" id="copy-btn">Copier</sl-button></div>
+    <input type="text" id="share-link" readonly onclick="this.select()">
+    <div><button class="btn-gold btn-small" id="copy-btn">Copier</button></div>
   </div>
 
   <div class="card-panel">
@@ -39,10 +37,11 @@
     <h2>Rejoindre la table</h2>
     <div class="form-inline">
       <div>
-        <sl-input id="my-name" label="Votre nom" placeholder="Ex: Fanfan"></sl-input>
+        <label for="my-name">Votre nom</label>
+        <input type="text" id="my-name" placeholder="Ex: Fanfan">
       </div>
       <div style="flex:0;">
-        <sl-button variant="primary" id="join-btn">S'asseoir à la table</sl-button>
+        <button class="btn-wine" id="join-btn">S'asseoir à la table</button>
       </div>
     </div>
     <p class="error" id="join-error"></p>
@@ -102,7 +101,7 @@ function render() {
     const tr = document.createElement('tr');
     const th = document.createElement('th');
     th.className = 'sticky-col';
-    th.innerHTML = `<div class="name-cell"><span>${escapeHtml(p.name)}</span><sl-icon-button name="x-lg" label="Retirer ce joueur" data-remove="${p.id}" class="btn-remove"></sl-icon-button></div>`;
+    th.innerHTML = `<div class="name-cell"><span>${escapeHtml(p.name)}</span><button class="btn-remove btn-small" data-remove="${p.id}" title="Retirer ce joueur">×</button></div>`;
     tr.appendChild(th);
     dates.forEach(d => {
       const status = votes[d.id] || 'none';
@@ -145,13 +144,16 @@ function render() {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       if (!confirm('Retirer ce joueur de la table ?')) return;
+      const originalHtml = btn.innerHTML;
       btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
       try {
         const res = await fetch(`/api/events/${eventId}/participants/${btn.dataset.remove}`, { method: 'DELETE' });
         eventData = await res.json();
         render();
       } catch (err) {
         btn.disabled = false;
+        btn.innerHTML = originalHtml;
       }
     });
   });
@@ -210,8 +212,9 @@ document.getElementById('join-btn').addEventListener('click', async () => {
   eventData.dates.forEach(d => (votes[d.id] = 'none'));
 
   const btn = document.getElementById('join-btn');
-  btn.loading = true;
   btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span>Installation...';
 
   try {
     const res = await fetch(`/api/events/${eventId}/vote`, {
@@ -231,7 +234,7 @@ document.getElementById('join-btn').addEventListener('click', async () => {
     errorEl.textContent = 'Impossible de contacter le serveur.';
   } finally {
     btn.disabled = false;
-    btn.loading = false;
+    btn.textContent = originalLabel;
   }
 });
 
