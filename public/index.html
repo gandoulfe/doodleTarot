@@ -18,6 +18,20 @@
   </div>
 
   <div class="card-panel">
+    <h2>Champion actuel</h2>
+    <label for="champion-name">Vainqueur de la dernière soirée</label>
+    <div class="form-inline">
+      <div>
+        <input type="text" id="champion-name" placeholder="Nom du champion">
+      </div>
+      <div style="flex:0;">
+        <button class="btn-wine" id="champion-save-btn">Enregistrer</button>
+      </div>
+    </div>
+    <p class="error" id="champion-error"></p>
+  </div>
+
+  <div class="card-panel">
     <h2>Nouvelle soirée</h2>
     <label for="ev-name">Nom de la soirée</label>
     <input type="text" id="ev-name" placeholder="Soirée Tarot chez Dédé">
@@ -141,6 +155,44 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+async function loadChampion() {
+  try {
+    const res = await fetch('/api/champion');
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('champion-name').value = data.champion;
+    }
+  } catch {}
+}
+
+document.getElementById('champion-save-btn').addEventListener('click', async () => {
+  const errorEl = document.getElementById('champion-error');
+  errorEl.textContent = '';
+  const champion = document.getElementById('champion-name').value.trim();
+
+  const btn = document.getElementById('champion-save-btn');
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span>Enregistrement...';
+
+  try {
+    const res = await fetch('/api/champion', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ champion })
+    });
+    if (!res.ok) {
+      errorEl.textContent = 'Erreur lors de l\'enregistrement.';
+    }
+  } catch {
+    errorEl.textContent = 'Impossible de contacter le serveur.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+});
+
+loadChampion();
 loadMyEvents();
 
 const DOW = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];

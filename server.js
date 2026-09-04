@@ -32,6 +32,10 @@ const initDone = db.batch([
     date_id TEXT NOT NULL,
     status TEXT NOT NULL,
     PRIMARY KEY (participant_id, date_id)
+  )`,
+  `CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
   )`
 ]);
 
@@ -154,6 +158,22 @@ app.delete('/api/events/:id', async (req, res) => {
     { sql: 'DELETE FROM events WHERE id = ?', args: [id] }
   ]);
   res.json({ ok: true });
+});
+
+app.get('/api/champion', async (req, res) => {
+  const result = await db.execute({ sql: 'SELECT value FROM settings WHERE key = ?', args: ['champion'] });
+  res.json({ champion: result.rows[0]?.value || '' });
+});
+
+app.put('/api/champion', async (req, res) => {
+  const { champion } = req.body;
+  if (typeof champion !== 'string') return res.status(400).json({ error: 'champion requis' });
+  await db.execute({
+    sql: `INSERT INTO settings (key, value) VALUES ('champion', ?)
+          ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+    args: [champion.trim()]
+  });
+  res.json({ champion: champion.trim() });
 });
 
 if (require.main === module) {
