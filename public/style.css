@@ -17,6 +17,26 @@
   --amber: #a97423;
   --radius: 18px;
   --radius-sm: 12px;
+
+  --sl-color-primary-50: #f2eefb;
+  --sl-color-primary-100: #e2d9f5;
+  --sl-color-primary-200: #c8b7ea;
+  --sl-color-primary-300: #ac93de;
+  --sl-color-primary-400: #977ad6;
+  --sl-color-primary-500: #8362cd;
+  --sl-color-primary-600: var(--grad-end);
+  --sl-color-primary-700: #573ba1;
+  --sl-color-primary-800: #47317f;
+  --sl-color-primary-900: #382865;
+  --sl-color-primary-950: #251b45;
+
+  --sl-color-danger-600: var(--red);
+
+  --sl-input-border-radius-medium: var(--radius-sm);
+  --sl-border-radius-medium: var(--radius-sm);
+  --sl-border-radius-large: var(--radius);
+  --sl-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -177,45 +197,16 @@ button {
 }
 button:active { transform: scale(0.96); }
 
-.btn-gold, .btn-wine {
-  background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
-  color: #fff;
-}
-.btn-gold:hover, .btn-wine:hover {
-  filter: brightness(1.06);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(99,68,201,0.32);
-}
-
 @media (max-width: 480px) {
-  .actions button { width: 100%; }
+  .actions sl-button { width: 100%; }
 }
-
-.btn-ghost {
-  background: var(--surface-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-.btn-ghost:hover { background: #ececee; }
-
-.btn-small { padding: 8px 16px; font-size: 0.88rem; }
 
 .btn-remove {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
   color: var(--text-dim);
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  padding: 0;
-  font-size: 1.1rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
 }
-.btn-remove:hover { color: var(--red); background: rgba(217,48,37,0.1); border-color: var(--red); }
+.btn-remove::part(base) { border-radius: 50%; }
+.btn-remove:hover { color: var(--red); }
 
 .actions { margin: 4px 0 20px; text-align: center; }
 
@@ -597,51 +588,4 @@ button .spinner { margin-right: 6px; }
   color: var(--text-dim);
 }
 
-/* Confirmation modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.18s ease;
-  z-index: 100;
-}
-.modal-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-.modal {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 28px;
-  max-width: 380px;
-  width: 100%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  transform: scale(0.95) translateY(6px);
-  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.modal-overlay.open .modal {
-  transform: scale(1) translateY(0);
-}
-.modal h3 { font-size: 1.15rem; margin-bottom: 8px; }
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-@media (max-width: 420px) {
-  .modal-actions { flex-direction: column-reverse; }
-  .modal-actions button { width: 100%; }
-}
-
-.btn-danger {
-  background: var(--red);
-  color: #fff;
-}
-.btn-danger:hover { background: #c2495a; transform: translateY(-1px); }
+sl-dialog::part(panel) { border-radius: var(--radius); }

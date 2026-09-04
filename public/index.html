@@ -7,6 +7,8 @@
 <meta name="theme-color" content="#fbfbfd">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>La Table de Tarot — Créer une soirée</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,8 +21,7 @@
 
   <div class="card-panel">
     <h2>Nouvelle soirée</h2>
-    <label for="ev-name">Nom de la soirée</label>
-    <input type="text" id="ev-name" placeholder="Soirée Tarot chez Dédé">
+    <sl-input id="ev-name" label="Nom de la soirée" placeholder="Soirée Tarot chez Dédé"></sl-input>
   </div>
 
   <div class="card-panel">
@@ -45,7 +46,7 @@
   </div>
 
   <div class="actions">
-    <button type="button" class="btn-wine" id="create-btn">Distribuer les cartes</button>
+    <sl-button variant="primary" size="large" id="create-btn">Distribuer les cartes</sl-button>
   </div>
   <p class="error" id="error-msg"></p>
 
@@ -55,38 +56,36 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="confirm-modal">
-  <div class="modal">
-    <h3>Supprimer cette soirée ?</h3>
-    <p class="hint" id="confirm-modal-text">Cette action est définitive, les réponses des joueurs seront perdues.</p>
-    <div class="modal-actions">
-      <button type="button" class="btn-ghost" id="confirm-cancel">Annuler</button>
-      <button type="button" class="btn-danger" id="confirm-ok">Supprimer</button>
-    </div>
-  </div>
-</div>
+<sl-dialog label="Supprimer cette soirée ?" id="confirm-modal">
+  <p class="hint" id="confirm-modal-text">Cette action est définitive, les réponses des joueurs seront perdues.</p>
+  <sl-button slot="footer" id="confirm-cancel">Annuler</sl-button>
+  <sl-button slot="footer" variant="danger" id="confirm-ok">Supprimer</sl-button>
+</sl-dialog>
 
 <script>
 function askConfirm(text) {
   return new Promise(resolve => {
     const modal = document.getElementById('confirm-modal');
     document.getElementById('confirm-modal-text').textContent = text;
-    modal.classList.add('open');
+    modal.show();
+    let resolved = false;
     const cleanup = (result) => {
-      modal.classList.remove('open');
+      if (resolved) return;
+      resolved = true;
+      modal.hide();
       okBtn.removeEventListener('click', onOk);
       cancelBtn.removeEventListener('click', onCancel);
-      modal.removeEventListener('click', onOverlay);
+      modal.removeEventListener('sl-after-hide', onHide);
       resolve(result);
     };
     const okBtn = document.getElementById('confirm-ok');
     const cancelBtn = document.getElementById('confirm-cancel');
     const onOk = () => cleanup(true);
     const onCancel = () => cleanup(false);
-    const onOverlay = (e) => { if (e.target === modal) cleanup(false); };
+    const onHide = () => cleanup(false);
     okBtn.addEventListener('click', onOk);
     cancelBtn.addEventListener('click', onCancel);
-    modal.addEventListener('click', onOverlay);
+    modal.addEventListener('sl-after-hide', onHide);
   });
 }
 
@@ -114,7 +113,7 @@ async function loadMyEvents() {
         <span class="event-row-name">${escapeHtml(ev.name)}</span>
         <span class="event-row-meta">${ev.date_count} date${ev.date_count > 1 ? 's' : ''} · ${ev.participant_count} joueur${ev.participant_count > 1 ? 's' : ''}</span>
       </a>
-      <button type="button" class="btn-remove" data-delete="${ev.id}" title="Supprimer">×</button>
+      <sl-icon-button name="x-lg" label="Supprimer" data-delete="${ev.id}" class="btn-remove"></sl-icon-button>
     `;
     list.appendChild(row);
   });
@@ -266,9 +265,8 @@ document.getElementById('create-btn').addEventListener('click', async () => {
   if (dates.length === 0) { errorEl.textContent = 'Sélectionnez au moins une date.'; return; }
 
   const btn = document.getElementById('create-btn');
+  btn.loading = true;
   btn.disabled = true;
-  const originalLabel = btn.textContent;
-  btn.innerHTML = '<span class="spinner"></span>Distribution en cours...';
 
   try {
     const res = await fetch('/api/events', {
@@ -287,7 +285,7 @@ document.getElementById('create-btn').addEventListener('click', async () => {
     errorEl.textContent = 'Impossible de contacter le serveur.';
   } finally {
     btn.disabled = false;
-    btn.textContent = originalLabel;
+    btn.loading = false;
   }
 });
 </script>
