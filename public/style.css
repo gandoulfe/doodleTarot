@@ -137,8 +137,15 @@ h1, h2, h3 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
+  margin-bottom: 20px;
 }
+.top-row .card-panel {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+.card-champion .actions { margin-top: auto; }
 @media (max-width: 680px) {
   .top-row { grid-template-columns: 1fr; }
 }
